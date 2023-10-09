@@ -1,0 +1,20 @@
+{
+  "name": "ttrack-cli",
+  "main": "bin/index.ts",
+  "bin": {
+    "ttrack": "bin/index.ts"
+  },
+  "devDependencies": {
+    "bun-types": "latest",
+    "prettier": "^3.0.3"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "chalk": "^5.3.0",
+    "commander": "^11.0.0",
+    "conf": "^11.0.2",
+    "table": "^6.8.1"
+  }
+}
