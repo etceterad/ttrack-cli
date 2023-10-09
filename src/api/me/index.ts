@@ -1,3 +1,7 @@
+export interface IUser {
+	api_token: string;
+}
+
 export default {
 	get(email: string, pass: string): Promise<Response> {
 		return fetch('https://api.track.toggl.com/api/v9/me', {
