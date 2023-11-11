@@ -12,6 +12,9 @@ export const useTable = (
     config?: TableUserConfig,
     customConfig?: CustomUserConfig
 ): string => {
+    if (!body.length) {
+        return chalk.blue('No entries found.');
+    }
     // TODO: find better way to transform header
     if (customConfig?.headerColor || customConfig?.headerBgColor) {
         head = head.map((item) =>

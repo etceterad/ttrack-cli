@@ -6,7 +6,7 @@ import { useTable } from '../../composables/useTable.ts';
 
 const ENTRY_KEYS = ['billable','start', 'stop', 'duration', 'description'];
 
-export default new Command('entries')
+export const entriesCommand = new Command('entries')
     .description('Manage your entries.')
     .option('-a', 'Display all entries')
     .option('-l', 'Last entry')
@@ -25,13 +25,22 @@ export default new Command('entries')
                     (entries as Record<string, unknown>[]).map((entry) =>
                         Object.entries(entry).reduce((acc, [key, value]) => {
                             if (ENTRY_KEYS.includes(key)) {
-                                if (key === 'start' || key === 'stop') {
-                                    value = new Date(value as string).toLocaleString();
-                                }
-                                if (key === 'duration' && !isNaN(+(value as string))) {
-                                    value = new Date(+(value as string) * 1000)
-                                        .toISOString()
-                                        .slice(11, 19);
+                                switch(key) {
+                                    case 'billable':
+                                        value = value ? chalk.green('Yes') : 'No';
+                                        break;
+                                    case 'stop':
+                                    case 'start':
+                                            value = new Date(value as string).toLocaleString();
+                                            break;
+                                    case 'duration': {
+                                        if (typeof value === 'number') {
+                                            value = new Date(value * 1000)
+                                                .toISOString()
+                                                .slice(11, 19);
+                                        }
+                                        break;
+                                    }
                                 }
                                 acc.push(value);
                             }
