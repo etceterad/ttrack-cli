@@ -1,11 +1,10 @@
 import { Command } from 'commander';
 import chalk from 'chalk';
-import { select } from '@inquirer/prompts';
 
-import UserAPI, { IUser } from '../../api/me';
 import TasksAPI from '../../api/tasks';
 import { useTable } from '../../composables/useTable.ts';
 import { ITogglTask } from './types.ts';
+import { useUserConfig } from '../../composables/useSelectWorkspace.ts';
 
 const TABLE_HEAD = ['name', 'active', 'estimated', 'assigned'];
 const ENTRY_KEYS: (keyof ITogglTask)[] = ['name', 'active', 'estimated_seconds', 'user_id'];
@@ -24,50 +23,29 @@ export const tasksCommand = new Command('tasks')
     .option('-n', 'Clears the saved config.')
     .action(async (options) => {
         try {
-            let workspaceId: number | undefined = (Bun.env.WORKSPACE_ID && +Bun.env.WORKSPACE_ID) || undefined;
-            let projectId: number | undefined = (Bun.env.PROJECT_ID && +Bun.env.PROJECT_ID) || undefined;
+            let {
+                workspaceId,
+                projectId,
+                selectWorkspaceId,
+                selectProjectId,
+                resetConfig,
+                saveConfig,
+            } = useUserConfig();
 
             if (options.n) {
-				if (workspaceId && projectId) {
-					const envContent = await Bun.file('.env').text();
-					await Bun.write('.env', envContent.replace(/(WORKSPACE_ID|PROJECT_ID)=.*\n?/, ''));
-					workspaceId = undefined;
-					projectId = undefined;
-				}
+                if (workspaceId && projectId) {
+                    await resetConfig();
+                }
             }
-			
-			if (!workspaceId || !projectId) {
-				const userInfoRequest = await UserAPI.get();
-				const userInfo = <IUser | null>(await userInfoRequest.json());
-				
-				if (!userInfo) {
-					console.log(chalk.red('Invalid credentials.'));
-					return;
-				}
-				
-				workspaceId = await select({
-					message: 'Select a workspace:',
-					choices: userInfo.workspaces.map((workspace) => ({
-						name: workspace.name,
-						value: workspace.id,
-					})),
-				});
-				
-				projectId = await select({
-					message: 'Select a project:',
-					choices: userInfo.projects
-						.filter(({ workspace_id }) => workspace_id === workspaceId)
-						.map((project) => ({
-							name: project.name,
-							value: project.id,
-						})),
-				});
-			}
-			
-			if (options.saveConfig) {
-				const envContent = await Bun.file('.env').text();
-				await Bun.write('.env', envContent + `\nWORKSPACE_ID=${workspaceId}\nPROJECT_ID=${projectId}`);
-			}
+
+            if (!workspaceId || !projectId) {
+                workspaceId = await selectWorkspaceId();
+                projectId = await selectProjectId();
+            }
+
+            if (options.saveConfig) {
+                await saveConfig();
+            }
 
             const tasksRequest = await TasksAPI.get({ workspaceId, projectId });
             const tasks = (await tasksRequest.json()) as ITogglTask[];
