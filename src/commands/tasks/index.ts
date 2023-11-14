@@ -31,8 +31,12 @@ export const tasksCommand = new Command('tasks')
 				if (workspaceId && projectId) {
 					const envContent = await Bun.file('.env').text();
 					await Bun.write('.env', envContent.replace(/(WORKSPACE_ID|PROJECT_ID)=.*\n?/, ''));
+					workspaceId = undefined;
+					projectId = undefined;
 				}
-				
+            }
+			
+			if (!workspaceId || !projectId) {
 				const userInfoRequest = await UserAPI.get();
 				const userInfo = <IUser | null>(await userInfoRequest.json());
 				
@@ -58,11 +62,6 @@ export const tasksCommand = new Command('tasks')
 							value: project.id,
 						})),
 				});
-            }
-			
-			if (!workspaceId || !projectId) {
-				console.log(chalk.red('No workspace or project selected.'));
-				return;
 			}
 			
 			if (options.saveConfig) {
