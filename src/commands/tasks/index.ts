@@ -51,6 +51,11 @@ export const tasksCommand = new Command('tasks')
 
             const tasksRequest = await TasksAPI.get({ workspaceId, projectId });
             const tasks = (await tasksRequest.json()) as ITogglTask[];
+            
+            if (!tasks) {
+                console.log(chalk.blue('No entries.'));
+                return;
+            }
 
             console.log(
                 useTable(

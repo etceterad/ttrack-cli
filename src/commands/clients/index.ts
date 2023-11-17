@@ -7,7 +7,7 @@ import { useTable } from '../../composables/useTable.ts';
 
 const TABLE_HEAD: (keyof Client)[] = ['name', 'archived'];
 
-export const clients = new Command('clients')
+export const clientsCommand = new Command('clients')
     .description('Manage your clients.')
     .action(async () => {
         try {
@@ -21,7 +21,7 @@ export const clients = new Command('clients')
             const clients = <Client[] | null>await clientsRequest.json();
 
             if (!clients) {
-                console.log(chalk.red('Invalid credentials.'));
+                console.log(chalk.blue('No entries.'));
                 return;
             }
 

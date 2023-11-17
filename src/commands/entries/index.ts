@@ -19,6 +19,11 @@ export const entriesCommand = new Command('entries')
             const response = await EntriesAPI.get();
             const entries = await response.json();
             
+            if (!entries) {
+                console.log(chalk.blue('No entries.'));
+                return;
+            }
+            
             console.log(
                 useTable(
                     ENTRY_KEYS.map((key) => key.charAt(0).toUpperCase() + key.slice(1)),
