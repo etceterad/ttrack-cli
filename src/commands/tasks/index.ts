@@ -33,8 +33,10 @@ export const tasksCommand = new Command('tasks')
             } = useUserConfig();
 
             if (options.n) {
-                if (workspaceId && projectId) {
+                if (workspaceId || projectId) {
                     await resetConfig();
+                    workspaceId = undefined;
+                    projectId = undefined;
                 }
             }
 

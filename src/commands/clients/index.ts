@@ -27,7 +27,7 @@ export const clients = new Command('clients')
 
             console.log(
                 useTable(
-                    TABLE_HEAD,
+                    TABLE_HEAD.map((key) => key.charAt(0).toUpperCase() + key.slice(1)),
                     clients.map((client) =>
                         TABLE_HEAD.map((key) => {
                             switch (key) {
