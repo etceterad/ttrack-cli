@@ -1,7 +1,7 @@
 import { Command } from 'commander';
 import chalk from 'chalk';
 
-import ClientsAPI, { Client } from '../../api/clients';
+import ClientsAPI, { Client } from '../../api/routes/clients.ts';
 import { useUserConfig } from '../../composables/useSelectWorkspace.ts';
 import { useTable } from '../../composables/useTable.ts';
 

@@ -1,7 +1,7 @@
 import chalk from 'chalk';
 import { Command } from 'commander';
 
-import EntriesAPI from '../../api/entries';
+import EntriesAPI from '../../api/routes/entries.ts';
 import { useTable } from '../../composables/useTable.ts';
 
 const ENTRY_KEYS = ['billable','start', 'stop', 'duration', 'description'];

@@ -1,7 +1,7 @@
 import { Command } from 'commander';
 
 import { useUserConfig } from '../../composables/useSelectWorkspace.ts';
-import TagsAPI, { ITag } from '../../api/tags';
+import TagsAPI, { ITag } from '../../api/routes/tags.ts';
 import { useTable } from '../../composables/useTable.ts';
 import chalk from 'chalk';
 

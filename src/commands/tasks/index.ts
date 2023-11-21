@@ -1,7 +1,7 @@
 import { Command } from 'commander';
 import chalk from 'chalk';
 
-import TasksAPI from '../../api/tasks';
+import TasksAPI from '../../api/routes/tasks.ts';
 import { useTable } from '../../composables/useTable.ts';
 import { ITogglTask } from './types.ts';
 import { useUserConfig } from '../../composables/useSelectWorkspace.ts';

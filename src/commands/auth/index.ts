@@ -2,7 +2,7 @@ import { Command } from 'commander';
 import chalk from 'chalk';
 import { input, password as passwordInput } from '@inquirer/prompts';
 
-import UserAPI, { IUser } from '../../api/me';
+import UserAPI, { IUser } from '../../api/routes/me.ts';
 
 export const authCommand = new Command('auth')
 	.description('Authorizes the user.')

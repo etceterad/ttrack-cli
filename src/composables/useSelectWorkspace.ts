@@ -1,7 +1,7 @@
 import { select } from '@inquirer/prompts';
 import chalk from 'chalk';
 
-import UserAPI, { IUser } from '../api/me';
+import UserAPI, { IUser } from '../api/routes/me.ts';
 
 type UseUserConfig = {
     workspaceId?: number;
