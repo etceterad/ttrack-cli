@@ -78,12 +78,18 @@ export const useUserConfig = (): UseUserConfig => {
     };
 
     const selectProjectId = async (): Promise<number> => {
-        const { projects } = await getUserInfo();
+        let { projects } = await getUserInfo();
+        projects = projects.filter(({ workspace_id }) => workspace_id === workspaceId.value);
+        
+        if (!projects.length) {
+            console.log(chalk.red('No projects found.'));
+            throw new Error('No projects found.');
+        }
 
         projectId.value = await select({
             message: 'Select a project:',
             choices: projects
-                .filter(({ workspace_id }) => workspace_id === workspaceId)
+                .filter(({ workspace_id }) => workspace_id === workspaceId.value)
                 .map((project) => ({
                     name: project.name,
                     value: project.id,
