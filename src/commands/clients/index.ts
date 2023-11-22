@@ -2,7 +2,7 @@ import { Command } from 'commander';
 import chalk from 'chalk';
 
 import ClientsAPI, { Client } from '../../api/routes/clients.ts';
-import { useUserConfig } from '../../composables/useSelectWorkspace.ts';
+import { useUserConfig } from '../../composables/useUserConfig.ts';
 import { useTable } from '../../composables/useTable.ts';
 
 const TABLE_HEAD: (keyof Client)[] = ['name', 'archived'];
@@ -11,13 +11,18 @@ export const clientsCommand = new Command('clients')
     .description('Manage your clients.')
     .action(async () => {
         try {
-            let { workspaceId, selectWorkspaceId } = useUserConfig();
+            const { workspaceId, selectWorkspaceId } = useUserConfig();
 
-            if (!workspaceId) {
-                workspaceId = await selectWorkspaceId();
+            if (!workspaceId.value) {
+                await selectWorkspaceId();
             }
 
-            const clientsRequest = await ClientsAPI.get(workspaceId);
+            if (!workspaceId.value) {
+                console.log(chalk.red('No workspace selected.'));
+                return;
+            }
+            
+            const clientsRequest = await ClientsAPI.get(workspaceId.value);
             const clients = <Client[] | null>await clientsRequest.json();
 
             if (!clients) {

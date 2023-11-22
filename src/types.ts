@@ -118,3 +118,7 @@ export interface Client {
 	name: string
 	at: string
 }
+
+export type SimpleState<T> = {
+	value: T
+}

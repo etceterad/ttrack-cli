@@ -2,10 +2,12 @@ import { select } from '@inquirer/prompts';
 import chalk from 'chalk';
 
 import UserAPI, { IUser } from '../api/routes/me.ts';
+import { SimpleState } from '../types.ts';
 
 type UseUserConfig = {
-    workspaceId?: number;
-    projectId?: number;
+    workspaceId: Partial<SimpleState<number>>;
+    projectId: Partial<SimpleState<number>>;
+    organizationId: Partial<SimpleState<number>>;
 
     selectWorkspaceId: () => Promise<number>;
     selectProjectId: () => Promise<number>;
@@ -18,9 +20,23 @@ const KEEP_ALIVE = 1000 * 120; // 3 mins
 
 const UserInfoCache: { cached: number; userInfo?: IUser } = { cached: Date.now() };
 
+type UserConfig = {
+    workspaceId: Partial<SimpleState<number>>;
+    projectId: Partial<SimpleState<number>>;
+    organizationId: Partial<SimpleState<number>>;
+}
+
+const userConfigState: UserConfig = {
+    workspaceId: {},
+    projectId: {},
+    organizationId: {}
+}
+
 export const useUserConfig = (): UseUserConfig => {
-    let workspaceId = (Bun.env.WORKSPACE_ID && +Bun.env.WORKSPACE_ID) || undefined;
-    let projectId = (Bun.env.WORKSPACE_ID && +Bun.env.WORKSPACE_ID) || undefined;
+    const { workspaceId, projectId, organizationId } = userConfigState;
+    workspaceId.value = (Bun.env.WORKSPACE_ID && +Bun.env.WORKSPACE_ID) || undefined;
+    projectId.value = (Bun.env.WORKSPACE_ID && +Bun.env.WORKSPACE_ID) || undefined;
+    organizationId.value = (Bun.env.WORKSPACE_ID && +Bun.env.WORKSPACE_ID) || undefined;
 
     const getUserInfo = async (): Promise<IUser> => {
         if (!UserInfoCache.userInfo || UserInfoCache.cached - Date.now() > KEEP_ALIVE) {
@@ -40,7 +56,7 @@ export const useUserConfig = (): UseUserConfig => {
     const selectWorkspaceId = async (): Promise<number> => {
         const { workspaces } = await getUserInfo();
 
-        workspaceId = await select({
+        workspaceId.value = await select({
             message: 'Select a workspace:',
             choices: workspaces.map((workspace) => ({
                 name: workspace.name,
@@ -58,13 +74,13 @@ export const useUserConfig = (): UseUserConfig => {
             await Bun.write('.env', envContent + `\nWORKSPACE_ID=${workspaceId}`);
         }
 
-        return workspaceId;
+        return workspaceId.value;
     };
 
     const selectProjectId = async (): Promise<number> => {
         const { projects } = await getUserInfo();
 
-        projectId = await select({
+        projectId.value = await select({
             message: 'Select a project:',
             choices: projects
                 .filter(({ workspace_id }) => workspace_id === workspaceId)
@@ -84,7 +100,7 @@ export const useUserConfig = (): UseUserConfig => {
             await Bun.write('.env', envContent + `\nPROJECT_ID=${workspaceId}`);
         }
 
-        return projectId;
+        return projectId.value;
     };
 
     const saveConfig = async () => {
@@ -110,14 +126,15 @@ export const useUserConfig = (): UseUserConfig => {
     const resetConfig = async () => {
         const envContent = await Bun.file('.env').text();
         await Bun.write('.env', envContent.replace(/(WORKSPACE_ID|PROJECT_ID)=.*\n?/, ''));
-        workspaceId = undefined;
-        projectId = undefined;
+        workspaceId.value = undefined;
+        projectId.value = undefined;
         UserInfoCache.userInfo = undefined;
     };
 
     return {
         workspaceId,
         projectId,
+        organizationId,
 
         selectWorkspaceId,
         selectProjectId,

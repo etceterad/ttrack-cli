@@ -4,7 +4,7 @@ import chalk from 'chalk';
 import TasksAPI from '../../api/routes/tasks.ts';
 import { useTable } from '../../composables/useTable.ts';
 import { ITogglTask } from './types.ts';
-import { useUserConfig } from '../../composables/useSelectWorkspace.ts';
+import { useUserConfig } from '../../composables/useUserConfig.ts';
 
 const TABLE_HEAD = ['name', 'active', 'estimated', 'assigned'];
 const ENTRY_KEYS: (keyof ITogglTask)[] = ['name', 'active', 'estimated_seconds', 'user_id'];
@@ -33,23 +33,26 @@ export const tasksCommand = new Command('tasks')
             } = useUserConfig();
 
             if (options.n) {
-                if (workspaceId || projectId) {
+                if (workspaceId.value || projectId.value) {
                     await resetConfig();
-                    workspaceId = undefined;
-                    projectId = undefined;
                 }
             }
 
-            if (!workspaceId || !projectId) {
-                workspaceId = await selectWorkspaceId();
-                projectId = await selectProjectId();
+            if (!workspaceId.value || !projectId.value) {
+                await selectWorkspaceId();
+                await selectProjectId();
+            }
+            
+            if (!workspaceId.value || !projectId.value) {
+                console.log(chalk.red('No workspace or project selected.'));
+                return;
             }
 
             if (options.saveConfig) {
                 await saveConfig();
             }
 
-            const tasksRequest = await TasksAPI.get({ workspaceId, projectId });
+            const tasksRequest = await TasksAPI.get({ workspaceId: workspaceId.value, projectId: projectId.value });
             const tasks = (await tasksRequest.json()) as ITogglTask[];
             
             if (!tasks) {

@@ -1,6 +1,6 @@
 import { Command } from 'commander';
 
-import { useUserConfig } from '../../composables/useSelectWorkspace.ts';
+import { useUserConfig } from '../../composables/useUserConfig.ts';
 import TagsAPI, { ITag } from '../../api/routes/tags.ts';
 import { useTable } from '../../composables/useTable.ts';
 import chalk from 'chalk';
@@ -11,11 +11,16 @@ export const tagsCommand = new Command('tags').description('Manage your tags.').
     try {
         let { workspaceId, selectWorkspaceId } = useUserConfig();
 
-        if (!workspaceId) {
-            workspaceId = await selectWorkspaceId();
+        if (!workspaceId.value) {
+            await selectWorkspaceId();
+        }
+        
+        if (!workspaceId.value) {
+            console.log(chalk.red('No workspace selected.'));
+            return;
         }
 
-        const tagsRequest = await TagsAPI.get(workspaceId);
+        const tagsRequest = await TagsAPI.get(workspaceId.value);
         const tags = <ITag[] | null>await tagsRequest.json();
         
         if (!tags) {
